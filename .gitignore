@@ -3,8 +3,11 @@
 *.iml
 out/
 
-# Java
+# Gradle
+.gradle/
 build/
+
+# Java
 target/
 *.class
 
