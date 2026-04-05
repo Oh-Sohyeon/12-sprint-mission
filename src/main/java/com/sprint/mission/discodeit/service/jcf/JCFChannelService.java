@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 
 public class JCFChannelService extends BasicChannelService {
-    public JCFChannelService() {
-        super(new JCFChannelRepository());
+    public JCFChannelService(JCFChannelRepository channelRepository) {
+        super(channelRepository);
     }
 }

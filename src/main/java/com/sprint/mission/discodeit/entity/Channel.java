@@ -11,13 +11,15 @@ public class Channel implements Serializable {
     private long createdAt;
     private long updatedAt;
 
+    private ChannelType type;
     private String name;
     private String description;
 
     List<User> users;
 
-    public Channel(String name, String description) {
+    public Channel(ChannelType type, String name, String description) {
         id = UUID.randomUUID();
+        this.type = type;
         this.name = name;
         this.description = description;
         this.createdAt = System.currentTimeMillis();
@@ -27,6 +29,8 @@ public class Channel implements Serializable {
     public UUID getId() {
         return id;
     }
+
+    public ChannelType getType() { return type; }
 
     public String getName() {
         return name;
@@ -44,7 +48,8 @@ public class Channel implements Serializable {
         return updatedAt;
     }
 
-    public void update(String name, String description) {
+    public void update(ChannelType type, String name, String description) {
+        this.type = type;
         this.name = name;
         this.description = description;
         updatedAt = System.currentTimeMillis();
@@ -54,10 +59,11 @@ public class Channel implements Serializable {
     public String toString() {
         return "Channel{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", type=" + type +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }

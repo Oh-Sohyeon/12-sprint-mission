@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 
 public class FileChannelService extends BasicChannelService {
 
-    public FileChannelService() {
-        super(new FileChannelRepository());
+    public FileChannelService(FileChannelRepository channelRepository) {
+        super(channelRepository);
     }
 }

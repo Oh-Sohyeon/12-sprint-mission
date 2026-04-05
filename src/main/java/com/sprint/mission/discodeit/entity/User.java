@@ -11,14 +11,14 @@ public class User implements Serializable {
     private Long updatedAt;
 
     private String username;
-    private String password;
     private String email;
+    private String password;
 
-    public User(String username, String password, String email) {
+    public User(String username, String email, String password) {
         id = UUID.randomUUID();
         this.username = username;
-        this.password = password;
         this.email = email;
+        this.password = password;
         createdAt = System.currentTimeMillis();
         updatedAt = System.currentTimeMillis();
     }
@@ -31,11 +31,11 @@ public class User implements Serializable {
         return username;
     }
 
+    public String getEmail() { return email;}
+
     public String getPassword() {
         return password;
     }
-
-    public String getEmail() { return email;}
 
     public Long getCreatedAt() {
         return createdAt;
@@ -45,10 +45,10 @@ public class User implements Serializable {
         return updatedAt;
     }
 
-    public void update(String username, String password, String email) {
+    public void update(String username, String email, String password) {
         this.username = username;
-        this.password = password;
         this.email = email;
+        this.password = password;
         updatedAt = System.currentTimeMillis();
     }
 
@@ -56,10 +56,10 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 }

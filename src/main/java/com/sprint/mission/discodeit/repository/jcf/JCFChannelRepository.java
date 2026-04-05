@@ -6,27 +6,31 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import java.util.*;
 
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> storage = new HashMap<>();
+    private final Map<UUID, Channel> data;
+
+    public JCFChannelRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public Channel save(Channel channel) {
-        storage.put(channel.getId(), channel);
+        data.put(channel.getId(), channel);
         return channel;
     }
 
     @Override
     public Optional<Channel> findById(UUID id) {
-        return Optional.ofNullable(storage.get(id));
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(storage.values());
+        return new ArrayList<>(data.values());
     }
 
     @Override
     public void delete(UUID id) {
-        storage.remove(id);
+        data.remove(id);
     }
 
 

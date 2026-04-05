@@ -16,14 +16,13 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User create(String username, String password, String email) {
+    public User create(String username, String email, String password) {
         validateUsername(username);
-        validatePassword(password);
         validateEmail(email);
-        validateDuplicatedUserName(username);
+        validatePassword(password);
         validateDuplicatedEmail(email);
 
-        User user = new User(username, password, email);
+        User user = new User(username, email, password);
         return userRepository.save(user);
     }
 
@@ -39,37 +38,28 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User update(UUID id, String username, String password, String email) {
+    public User update(UUID id, String username, String email, String password) {
         validateUsername(username);
-        validatePassword(password);
         validateEmail(email);
+        validatePassword(password);
 
         User user = findById(id);
-        if (!user.getUsername().equals(username)) {
-            validateDuplicatedUserName(username);
-        }
         if (!user.getEmail().equals(email)) {
             validateDuplicatedEmail(email);
         }
-        user.update(username, password, email);
+        user.update(username, email, password);
         return userRepository.save(user);
     }
 
     @Override
     public void delete(UUID id) {
-        User user = findById(id);
-        userRepository.delete(user.getId());
+        findById(id);
+        userRepository.delete(id);
     }
 
     private void validateUsername(String username) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("유저 이름은 비어 있을 수 없습니다.");
-        }
-    }
-
-    private void validatePassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 비어 있을 수 없습니다.");
         }
     }
 
@@ -79,11 +69,9 @@ public class BasicUserService implements UserService {
         }
     }
 
-    private void validateDuplicatedUserName(String username) {
-        boolean exists = userRepository.findAll().stream()
-                .anyMatch(user -> user.getUsername().equals(username));
-        if (exists) {
-            throw new IllegalArgumentException("이미 있는 이름입니다.");
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("비밀번호는 비어 있을 수 없습니다.");
         }
     }
 

@@ -21,9 +21,11 @@ public class FileUserRepository implements UserRepository {
         List<User> users = readAll();
         boolean updated = false;
         for (int i = 0; i < users.size(); i++) {
-            users.set(i, user);
-            updated = true;
-            break;
+           if (users.get(i).getId().equals(user.getId())) {
+               users.set(i, user);
+               updated = true;
+               break;
+           }
         }
         if (!updated) {
             users.add(user);
@@ -34,17 +36,21 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.empty();
+        return readAll().stream()
+                .filter(user -> user.getId().equals(id))
+                .findFirst();
     }
 
     @Override
     public List<User> findAll() {
-        return List.of();
+        return readAll();
     }
 
     @Override
     public void delete(UUID id) {
-
+        List<User> users = readAll();
+        users.removeIf(user -> user.getId().equals(id));
+        writeAll(users);
     }
 
     @SuppressWarnings("unchecked")

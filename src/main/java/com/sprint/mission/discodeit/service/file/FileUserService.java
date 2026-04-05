@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.service.basic.BasicUserService;
 
 public class FileUserService extends BasicUserService {
 
-    public FileUserService() {
-        super(new FileUserRepository());
+    public FileUserService(FileUserRepository userRepository) {
+        super(userRepository);
     }
 }
