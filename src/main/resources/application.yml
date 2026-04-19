@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: discodeit
+
+descodeit:
+  repository:
+    type: jcf
+    file-directory: .descodeit
+
+#descodeit:
+#  repotiory:
+#    type: file
+#    file-directory: .descodeit
