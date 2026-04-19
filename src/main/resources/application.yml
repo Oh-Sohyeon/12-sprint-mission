@@ -4,10 +4,6 @@ spring:
 
 descodeit:
   repository:
-    type: jcf
+    type: file
     file-directory: .descodeit
 
-#descodeit:
-#  repotiory:
-#    type: file
-#    file-directory: .descodeit
