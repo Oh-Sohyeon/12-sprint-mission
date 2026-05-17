@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -7,13 +8,13 @@ import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,63 +24,82 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
+@RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserStatusService userStatusService;
+    private final UserMapper userMapper;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<UserDto>> findAll() {
-        List<UserDto> users = userService.findAll();
-        return ResponseEntity.ok(users);
-    }
-
-    @RequestMapping(
-            method = RequestMethod.POST,
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
-    public ResponseEntity<User> create(
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Override
+    public ResponseEntity<UserDto> create(
             @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
                 .flatMap(this::resolveProfileRequest);
         User createdUser = userService.create(userCreateRequest, profileRequest);
+        UserDto response = userMapper.toDto(createdUser);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdUser);
+                .body(response);
     }
 
-    @RequestMapping(
-            value = "/{userId}",
-            method = RequestMethod.PATCH,
+    @PatchMapping(
+            path = "{userId}",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    public ResponseEntity<User> update(
-            @PathVariable UUID userId,
+    @Override
+    public ResponseEntity<UserDto> update(
+            @PathVariable("userId") UUID userId,
             @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
                 .flatMap(this::resolveProfileRequest);
         User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
-        return ResponseEntity.ok(updatedUser);
+        UserDto response = userMapper.toDto(updatedUser);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> delete(@PathVariable UUID userId) {
+    @DeleteMapping(path = "{userId}")
+    @Override
+    public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
         userService.delete(userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
-    @RequestMapping(value = "/{userId}/userStatus", method = RequestMethod.PATCH)
-    public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable UUID userId,
+    @GetMapping
+    @Override
+    public ResponseEntity<List<UserDto>> findAll() {
+        List<UserDto> users = userService.findAll();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(users);
+    }
+
+    @PatchMapping(path = "{userId}/userStatus")
+    @Override
+    public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
                                                                @RequestBody UserStatusUpdateRequest request) {
         UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
-        return ResponseEntity.ok(updatedUserStatus);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(updatedUserStatus);
+    }
+
+    private Boolean resolveOnline(User user) {
+        return userStatusService.findAll().stream()
+                .filter(userStatus -> userStatus.getUser().getId().equals(user.getId()))
+                .findFirst()
+                .map(UserStatus::isOnline)
+                .orElse(false);
     }
 
     private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
