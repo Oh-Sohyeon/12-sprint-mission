@@ -4,20 +4,11 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = {BinaryContentMapper.class})
+@Mapper(componentModel = "spring", uses = {BinaryContentMapper.class, UserStatusMapper.class})
 public interface UserMapper {
 
-    @Mapping(target = "online", source = "user", qualifiedByName = "resolveOnline")
+    @Mapping(target = "online", expression = "java(user.getStatus().isOnline())")
     UserDto toDto(User user);
-
-    @Named("resolveOnline")
-    default Boolean resolveOnline(User user) {
-        if (user == null || user.getUserStatus() == null) {
-            return false;
-        }
-        return user.getUserStatus().isOnline();
-    }
 
 }

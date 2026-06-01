@@ -5,11 +5,10 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
-    List<Channel> findAllByType(ChannelType type);
+    List<Channel> findAllByTypeOrIdIn(ChannelType type, List<UUID> ids);
 
 }

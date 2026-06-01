@@ -1,29 +1,26 @@
 package com.sprint.mission.discodeit.entity.base;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
+@NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false, updatable = false)
-    protected UUID id;
+    private UUID id;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    protected Instant createdAt;
-
-    protected BaseEntity() {}
-
-    protected BaseEntity(UUID id) {
-        this.id = id;
-    }
+    @Column(columnDefinition = "timestamp with time zone", nullable = false, updatable = false)
+    private Instant createdAt;
 }

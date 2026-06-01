@@ -5,8 +5,6 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,27 +23,24 @@ public class ChannelController implements ChannelApi {
 
     @PostMapping(path = "public")
     public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
-        Channel createdChannel = channelService.create(request);
-        ChannelDto response = channelService.find(createdChannel.getId());
+        ChannelDto createdChannel = channelService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(createdChannel);
     }
 
     @PostMapping(path = "private")
     public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
-        Channel createdChannel = channelService.create(request);
-        ChannelDto response = channelService.find(createdChannel.getId());
+        ChannelDto createdChannel = channelService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(createdChannel);
     }
 
     @PatchMapping(path = "{channelId}")
     public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
                                              @RequestBody PublicChannelUpdateRequest request) {
-        Channel updatedChannel = channelService.update(channelId, request);
-        ChannelDto response = channelService.find(updatedChannel.getId());
+        ChannelDto response = channelService.update(channelId, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
@@ -30,7 +31,6 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserStatusService userStatusService;
-    private final UserMapper userMapper;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Override
@@ -40,11 +40,10 @@ public class UserController implements UserApi {
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
                 .flatMap(this::resolveProfileRequest);
-        User createdUser = userService.create(userCreateRequest, profileRequest);
-        UserDto response = userMapper.toDto(createdUser);
+        UserDto createdUser = userService.create(userCreateRequest, profileRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(createdUser);
     }
 
     @PatchMapping(
@@ -59,11 +58,10 @@ public class UserController implements UserApi {
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
                 .flatMap(this::resolveProfileRequest);
-        User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
-        UserDto response = userMapper.toDto(updatedUser);
+        UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response);
+                .body(updatedUser);
     }
 
     @DeleteMapping(path = "{userId}")
@@ -86,20 +84,12 @@ public class UserController implements UserApi {
 
     @PatchMapping(path = "{userId}/userStatus")
     @Override
-    public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
+    public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
                                                                @RequestBody UserStatusUpdateRequest request) {
-        UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
+        UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updatedUserStatus);
-    }
-
-    private Boolean resolveOnline(User user) {
-        return userStatusService.findAll().stream()
-                .filter(userStatus -> userStatus.getUser().getId().equals(user.getId()))
-                .findFirst()
-                .map(UserStatus::isOnline)
-                .orElse(false);
     }
 
     private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {

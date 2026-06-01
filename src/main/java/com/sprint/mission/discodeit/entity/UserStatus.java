@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -11,22 +14,19 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "user_statuses")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserStatus extends BaseUpdatableEntity {
 
-    @OneToOne
+    @JsonBackReference
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "last_active_at", nullable = false)
+    @Column(columnDefinition = "timestamp with time zone", nullable = false)
     private Instant lastActiveAt;
 
-    protected UserStatus() {
-
-    }
-
     public UserStatus(User user, Instant lastActiveAt) {
-        super(UUID.randomUUID());
-        this.user = user;
+        setUser(user);
         this.lastActiveAt = lastActiveAt;
     }
 
@@ -39,5 +39,10 @@ public class UserStatus extends BaseUpdatableEntity {
     public boolean isOnline() {
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
         return lastActiveAt.isAfter(instantFiveMinutesAgo);
+    }
+
+    protected void setUser(User user) {
+        this.user = user;
+        user.setStatus(this);
     }
 }

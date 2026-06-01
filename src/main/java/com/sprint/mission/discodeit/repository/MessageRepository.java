@@ -16,30 +16,24 @@ import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    @EntityGraph(attributePaths = {
-            "channel",
-            "author",
-            "author.profile",
-            "author.userStatus"
-    } )
-    Slice<Message> findAllByChannel_Id(UUID channelId, Pageable pageable);
-
-    Optional<Message> findFirstByChannel_IdOrderByCreatedAtDesc(UUID channelId);
-
-    void deleteAllByChannel_Id(UUID channelId);
+    @Query("""
+        SELECT m FROM Message m
+        LEFT JOIN FETCH m.author a
+        JOIN FETCH a.status
+        LEFT JOIN FETCH a.profile
+        WHERE m.channel.id=:channelId AND m.createdAt < :createdAt
+    """)
+    Slice<Message> findAllByChannelIdWithAuthor(@Param("channelId") UUID channelId,
+                                                @Param("createdAt") Instant createdAt,
+                                                Pageable pageable);
 
     @Query("""
-            select m.channel.id as channelId, max(m.createdAt) as lastMessageAt
-            from Message m
-            where m.channel.id in :channelIds
-            group by m.channel.id
+        SELECT m.createdAt
+        FROM Message m
+        WHERE m.channel.id = :channelId
+        ORDER BY m.createdAt DESC LIMIT 1
     """)
-    List<ChannelLastMessageAtProjection> findLastMessageAtsByChannelIds(
-            @Param("channelIds") Collection<UUID> channelIds
-            );
+    Optional<Instant> findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
 
-    interface ChannelLastMessageAtProjection {
-        UUID getChannelId();
-        Instant getLastMessageAt();
-    }
+    void deleteAllByChannelId(UUID channelId);
 }
